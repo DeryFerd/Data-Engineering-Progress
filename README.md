@@ -44,7 +44,7 @@ project-name/
    ```
    pip install -r requirements.txt
    ```
-3. Add your environment variables (e.g., API keys) to .env file.
+3. Add your environment variables (e.g., API keys) to ```.env``` file.
 4. Run the pipeline in stages:
    ```
    python src/extract.py
