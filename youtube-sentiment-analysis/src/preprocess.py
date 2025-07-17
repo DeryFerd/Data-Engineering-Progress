@@ -17,7 +17,7 @@ def clean_text(text):
     text = re.sub(r"http\S+|www\S+", '', text)
     text = re.sub(r'[^a-zA-Z\s]', '', text)
     text = text.lower()
-    tokens = text.split()  # GANTI INI: manual split by space
+    tokens = text.split()
     filtered = [word for word in tokens if word not in stop_words]
     return ' '.join(filtered)
 
