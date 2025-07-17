@@ -5,9 +5,9 @@ client = MongoClient("mongodb://localhost:27017/")
 db = client["youtube_db"]
 collection = db["comments"]
 
-# Ambil data dari MongoDB
+# Load Data from MongoDB
 data = list(collection.find())
 df = pd.DataFrame(data)
 
-# Tampilkan beberapa komentar
+# Show some comments
 print(df[['comment']].head())
