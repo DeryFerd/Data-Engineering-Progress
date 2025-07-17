@@ -2,11 +2,11 @@ import os
 import googleapiclient.discovery
 from dotenv import load_dotenv
 
-# Load API Key dari .env
+# Load API Key from .env
 load_dotenv()
 api_key = os.getenv("YOUTUBE_API_KEY")
 
-# Inisialisasi client YouTube
+# Initialize Youtube client
 youtube = googleapiclient.discovery.build("youtube", "v3", developerKey=api_key)
 
 def get_comments(video_id, max_results=500):
@@ -27,7 +27,7 @@ def get_comments(video_id, max_results=500):
             top_comment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
             comments.append(top_comment)
 
-        # Cek apakah ada halaman selanjutnya
+        # Check if there is a next page
         next_page_token = response.get("nextPageToken")
         if not next_page_token:
             break
