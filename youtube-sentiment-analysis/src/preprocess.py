@@ -5,11 +5,11 @@ from nltk.tokenize import word_tokenize
 import nltk
 import contractions
 
-# Unduh data stopwords & tokenizer
+# Load stopword and tokenizer
 nltk.download('stopwords')
 nltk.download('punkt')
 
-# Bahasa Indonesia
+# Indonesian Language
 stop_words = set(stopwords.words('indonesian'))
 
 def clean_text(text):
@@ -23,7 +23,7 @@ def clean_text(text):
 
 
 if __name__ == "__main__":
-    # Contoh komentar
+    # Create sample of comment
     sample = "he's crazy!"
 
     cleaned = clean_text(sample)
