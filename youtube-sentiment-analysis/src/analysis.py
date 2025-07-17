@@ -1,13 +1,13 @@
 import pandas as pd
 from textblob import TextBlob
 
-# Load data dari CSV
+# Load data from CSV
 df = pd.read_csv("data/cleaned_comments.csv")
 
-# Fungsi analisis sentimen
+# Analysis sentiment function
 def get_sentiment(text):
     if not isinstance(text, str) or text.strip() == "":
-        return "unknown"  # atau bisa return None juga
+        return "unknown"  
     blob = TextBlob(text)
     polarity = blob.sentiment.polarity
     if polarity > 0.1:
@@ -18,11 +18,11 @@ def get_sentiment(text):
         return "neutral"
 
 
-# Apply ke kolom komentar bersih
+# Apply to cleaned columns
 df["sentiment"] = df["cleaned_comment"].apply(get_sentiment)
 
-# Tampilkan hasil
+# print the output
 print(df[["cleaned_comment", "sentiment"]].head(10))
 
-# Simpan hasil ke file baru
+# Save to new file
 df.to_csv("data/comments_with_sentiment.csv", index=False, encoding="utf-8-sig")
