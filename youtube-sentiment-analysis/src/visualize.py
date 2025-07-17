@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 # Load data
 df = pd.read_csv("data/comments_with_sentiment.csv")
 
-# Hitung frekuensi tiap sentimen
+# Calculate frequecy for each sentiment
 sentiment_counts = df["sentiment"].value_counts()
 
 # Pie chart
@@ -16,13 +16,13 @@ plt.show()
 
 from wordcloud import WordCloud
 
-# Gabungkan semua komentar jadi satu string
+# Merge all comments in one string
 all_text = " ".join(df["cleaned_comment"].dropna())
 
-# Buat WordCloud
+# Create WordCloud
 wordcloud = WordCloud(width=800, height=400, background_color='white').generate(all_text)
 
-# Tampilkan WordCloud
+# Visualize WordCloud
 plt.figure(figsize=(10, 5))
 plt.imshow(wordcloud, interpolation="bilinear")
 plt.axis("off")
@@ -32,7 +32,7 @@ plt.show()
 
 from collections import Counter
 
-# Hitung frekuensi kata
+# Count word frequency
 words = all_text.split()
 word_counts = Counter(words)
 common_words = word_counts.most_common(10)
