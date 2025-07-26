@@ -9,18 +9,17 @@ from dotenv import load_dotenv
 import finnhub
 from datetime import datetime
 
-# --- Konfigurasi ---
+# --- Konfigurasi Baru untuk Crypto ---
 load_dotenv()
 API_KEY = os.getenv('FINNHUB_API_KEY')
-SYMBOL = 'IBM' 
-DB_NAME = 'stock_data_lite.db'
+# Format Simbol Crypto Finnhub: EXCHANGE:PAIR
+SYMBOL = 'BINANCE:BTCUSDT' 
+DB_NAME = 'crypto_data_lite.db' # Ganti nama DB untuk data baru
 
 # Cek jika API Key ada
 if not API_KEY:
-    # Di Streamlit Cloud, kita tidak bisa menghentikan program dengan error
-    # Jadi kita tampilkan pesan di dasbor
     st.error("API Key Finnhub tidak ditemukan. Mohon set 'Secrets' di pengaturan Streamlit.")
-    st.stop() # Menghentikan eksekusi skrip
+    st.stop() 
 
 # Setup client Finnhub
 finnhub_client = finnhub.Client(api_key=API_KEY)
@@ -29,23 +28,26 @@ def setup_database():
     """Membuat database dan tabel SQLite jika belum ada."""
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
+    # Ganti nama tabel menjadi lebih sesuai
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS stock_ticks (
+        CREATE TABLE IF NOT EXISTS crypto_ticks (
             timestamp TEXT PRIMARY KEY,
             symbol TEXT NOT NULL,
             open REAL,
             high REAL,
             low REAL,
             close REAL,
-            volume INTEGER
+            volume REAL 
         );
     """)
     conn.commit()
     conn.close()
+    print(f"Database '{DB_NAME}' siap digunakan.")
 
-def fetch_stock_data():
-    """Mengambil data harga saham terakhir dari Finnhub."""
+def fetch_crypto_data():
+    """Mengambil data harga crypto terakhir dari Finnhub."""
     try:
+        # Finnhub menggunakan endpoint 'quote' untuk data real-time crypto juga
         quote = finnhub_client.quote(SYMBOL)
         if quote['c'] == 0: return None
         return {
@@ -55,7 +57,7 @@ def fetch_stock_data():
             'high': quote['h'],
             'low': quote['l'],
             'close': quote['c'],
-            'volume': quote.get('d', 0)
+            'volume': quote.get('d', 0) # Volume untuk crypto bisa jadi 0 atau tidak ada
         }
     except Exception as e:
         print(f"Error fetching data: {e}")
@@ -66,8 +68,9 @@ def insert_data(payload):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
     try:
+        # Sesuaikan dengan nama tabel baru
         cur.execute("""
-            INSERT INTO stock_ticks (timestamp, symbol, open, high, low, close, volume)
+            INSERT INTO crypto_ticks (timestamp, symbol, open, high, low, close, volume)
             VALUES (:timestamp, :symbol, :open, :high, :low, :close, :volume)
         """, payload)
         conn.commit()
@@ -78,8 +81,8 @@ def insert_data(payload):
 
 # --- Fungsi Utama Aplikasi Streamlit ---
 def run_app():
-    st.set_page_config(page_title="Real-Time Stock Dashboard", layout="wide")
-    st.title(f"Harga Saham Real-Time: {SYMBOL}")
+    st.set_page_config(page_title="Real-Time Crypto Dashboard", layout="wide")
+    st.title(f"Harga Kripto Real-Time: {SYMBOL}")
 
     # Buat placeholder di luar loop
     chart_placeholder = st.empty()
@@ -89,7 +92,7 @@ def run_app():
     # Loop utama aplikasi
     while True:
         # 1. Ambil data baru dan simpan
-        payload = fetch_stock_data()
+        payload = fetch_crypto_data()
         if payload:
             insert_data(payload)
             print(f"Data baru diambil dan disimpan: {payload['timestamp']}")
@@ -97,14 +100,15 @@ def run_app():
         # 2. Baca semua data dari database untuk ditampilkan
         try:
             conn = sqlite3.connect(DB_NAME)
-            df = pd.read_sql_query("SELECT * FROM stock_ticks ORDER BY timestamp DESC LIMIT 100", conn)
+            # Baca dari tabel crypto_ticks
+            df = pd.read_sql_query("SELECT * FROM crypto_ticks ORDER BY timestamp DESC LIMIT 100", conn)
             conn.close()
 
             if not df.empty:
                 df_display = df.sort_values(by="timestamp")
+                # Update judul grafik
                 fig = px.line(df_display, x="timestamp", y="close", title=f'Harga Penutupan {SYMBOL}')
                 
-                # Update konten placeholder
                 chart_placeholder.plotly_chart(fig, use_container_width=True)
                 data_placeholder.dataframe(df, use_container_width=True)
                 last_update_placeholder.write(f"Update Terakhir: {pd.to_datetime(df_display['timestamp'].max())}")
