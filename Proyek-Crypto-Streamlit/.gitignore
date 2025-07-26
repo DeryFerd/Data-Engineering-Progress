@@ -1,0 +1,11 @@
+# Abaikan virtual environment
+venv/
+
+# Abaikan file environment yang berisi secret
+.env
+
+# Abaikan file database SQLite
+*.db
+
+# Abaikan folder cache Python
+__pycache__/
